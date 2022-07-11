@@ -2,8 +2,8 @@ import { Controls } from "./controls";
 
 export class Car{
     constructor(
-        private x: number,
-        private y: number,
+        public x: number,
+        public y: number,
         private width: number,
         private height: number,
 
@@ -16,7 +16,8 @@ export class Car{
         private angle: number = 0,
     ) {}
 
-    draw(ctx: CanvasRenderingContext2D ) {
+
+    draw(ctx: CanvasRenderingContext2D) {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(-this.angle);
