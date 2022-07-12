@@ -1,16 +1,22 @@
 import { Controls } from "./controls";
 import { Pair } from "./interfaces";
 import { Sensor } from "./sensor";
+import { UtilsService } from "./utils.service";
 
 export class Car{
     public sensor: Sensor = new Sensor(this);
     private controls: Controls = new Controls();
+    public utils: UtilsService;
 
     private speed: number = 0;
     private acceleration: number = 0.2;
     private maxSpeed: number = 3;
     private friction: number = 0.05;
     public angle: number = 0;
+
+    private damaged: boolean = false;
+    
+    private carCoors: Pair[];
 
     constructor(
         public x: number,
@@ -23,27 +29,15 @@ export class Car{
 
 
     draw(ctx: CanvasRenderingContext2D) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(-this.angle);
-        
+        ctx.fillStyle = this.damaged ? 'red' : 'black';
+
         ctx.beginPath();
-        ctx.rect(
-            -this.width / 2,
-            -this.height / 2,
-            this.width,
-            this.height
-        );
+        ctx.moveTo(this.carCoors[0].x, this.carCoors[0].y);
+        for (let i: number = 1; i < this.carCoors.length; ++i) {
+            ctx.lineTo(this.carCoors[i].x, this.carCoors[i].y);
+        }
         ctx.fill();
-
-        ctx.restore();
-
         this.sensor.draw(ctx);
-    }
-
-    update(roadBorders: Pair[][]) {
-        this.move();
-        this.sensor.update(roadBorders);
     }
 
     private move() {
@@ -89,5 +83,49 @@ export class Car{
         // UPDATE
         this.x -= Math.sin(this.angle) * this.speed;
         this.y -= Math.cos(this.angle) * this.speed;
+    }
+
+    private getCoordinates() {
+        const coors: Pair[] = [];
+        const rad = Math.hypot(this.width, this.height) / 2;
+        const alpha = Math.atan2(this.width, this.height);
+        coors.push({
+            x: this.x - Math.sin(this.angle - alpha) * rad,
+            y: this.y - Math.cos(this.angle - alpha) * rad
+        });
+        coors.push({
+            x: this.x - Math.sin(this.angle + alpha) * rad,
+            y: this.y - Math.cos(this.angle + alpha) * rad
+        });
+        coors.push({
+            x: this.x - Math.sin(Math.PI + this.angle - alpha) * rad,
+            y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad
+        });
+        coors.push({
+            x: this.x - Math.sin(Math.PI + this.angle + alpha) * rad,
+            y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad
+        });
+
+        return coors;
+    }
+
+    private checkDamage(roadBorders: Pair[][]) {
+        for(let i: number = 0; i < roadBorders.length ; i++){
+            if (this.utils.polysIntersect(this.carCoors, roadBorders[i])){
+                this.damaged = true;
+                return;
+            }
+        }
+        this.damaged = false;
+        return;
+    }
+
+    update(roadBorders: Pair[][]) {
+        if (!this.damaged) {
+            this.move();
+            this.carCoors = this.getCoordinates();
+            this.checkDamage(roadBorders);
+        }
+        this.sensor.update(roadBorders);
     }
 }

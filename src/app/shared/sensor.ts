@@ -3,7 +3,7 @@ import { Intersection, Pair } from "./interfaces";
 import { UtilsService } from "./utils.service";
 
 export class Sensor{
-    private numRays: number = 1;
+    private numRays: number = 5;
     private rayRange: number = 150;
     private raySpread: number = Math.PI / 2;
 
@@ -23,7 +23,6 @@ export class Sensor{
                 -this.raySpread / 2,
                 this.numRays == 1 ? 1/2 : (i / (this.numRays - 1))
             ) + this.car.angle;
-            console.log(rayAngle);
             
             const start: Pair = {x: this.car.x, y: this.car.y};
             const end: Pair = {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Intersection } from './interfaces';
+import { Intersection, Pair } from './interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -14,23 +14,41 @@ export class UtilsService {
   }
 
     // get all points of intersections
-    getIntersection(A, B, C, D) : Intersection{
-      const tTop = (D.x - C.x) * (A.y - C.y) - (D.y - C.y) * (A.x - C.x);
-      const uTop = (C.y - A.y) * (A.x - B.x) - (C.x - A.x) * (A.y - B.y);
-      const bottom = (D.y - C.y) * (B.x - A.x) - (D.x - C.x) * (B.y - A.y);
-      
-      if(bottom != 0){
-          const t = tTop / bottom;
-          const u = uTop / bottom;
-          if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-              return {
-                  x: this.lerp(A.x, B.x, t),
-                  y: this.lerp(A.y, B.y, t),
-                  distance: t
+    getIntersection(A: Pair, B: Pair, C: Pair, D: Pair) : Intersection{
+      const tTop=(D.x-C.x)*(A.y-C.y)-(D.y-C.y)*(A.x-C.x);
+    const uTop=(C.y-A.y)*(A.x-B.x)-(C.x-A.x)*(A.y-B.y);
+    const bottom=(D.y-C.y)*(B.x-A.x)-(D.x-C.x)*(B.y-A.y);
+    
+    if(bottom!=0){
+        const t=tTop/bottom;
+        const u=uTop/bottom;
+        if(t>=0 && t<=1 && u>=0 && u<=1){
+            return {
+                x:this.lerp(A.x,B.x,t),
+                y:this.lerp(A.y,B.y,t),
+                distance:t
+            }
+        }
+    }
+
+    return null;
+    }
+
+    // collision detection
+    polysIntersect(poly1, poly2){
+      for(let i=0;i<poly1.length;i++){
+          for(let j=0;j<poly2.length;j++){
+              const touch=this.getIntersection(
+                  poly1[i],
+                  poly1[(i+1)%poly1.length],
+                  poly2[j],
+                  poly2[(j+1)%poly2.length]
+              );
+              if(touch){
+                  return true;
               }
           }
       }
-  
-      return null;
-    }
+      return false;
+  }
 }

@@ -28,6 +28,7 @@ export class AppComponent {
     this.road = new Road(this.canvas.width / 2, this.canvas.width * 0.9);
     this.car = new Car(this.road.getLaneCenter(Math.floor(this.road.numLanes / 2)),100,30,50);
     this.road.utils = this.utils;
+    this.car.utils = this.utils;
     this.car.sensor.utils = this.utils;
 
 
