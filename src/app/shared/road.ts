@@ -57,6 +57,7 @@ export class Road {
         }
 
         // use solid line for outer lanes
+        ctx.strokeStyle = "#f7ce17";
         ctx.setLineDash([]);
         this.borders.forEach(border => {
             ctx.beginPath();

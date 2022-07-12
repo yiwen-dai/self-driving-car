@@ -3,7 +3,7 @@ import { Intersection, Pair } from "./interfaces";
 import { UtilsService } from "./utils.service";
 
 export class Sensor{
-    private numRays: number = 5;
+    private numRays: number = 1;
     private rayRange: number = 150;
     private raySpread: number = Math.PI / 2;
 
@@ -76,7 +76,7 @@ export class Sensor{
             // draw rays up to POI
             ctx.beginPath();
             ctx.lineWidth = 2;
-            ctx.strokeStyle = "yellow";
+            ctx.strokeStyle = "#0098dbBF";
             ctx.moveTo(this.rays[i][0].x, this.rays[i][0].y);
             ctx.lineTo(end.x, end.y);
             ctx.stroke();
@@ -84,7 +84,7 @@ export class Sensor{
             // draw "blacked out" rays from POI
             ctx.beginPath();
             ctx.lineWidth = 2;
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = "#00000080";
             ctx.moveTo(this.rays[i][1].x, this.rays[i][1].y);
             ctx.lineTo(end.x, end.y);
             ctx.stroke();
