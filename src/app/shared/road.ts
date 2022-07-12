@@ -1,9 +1,5 @@
+import { Pair } from "./interfaces";
 import { UtilsService } from "./utils.service";
-
-interface Pair {
-    x: number,
-    y: number
-}
 
 export class Road {
     readonly inf: number = 1000000;

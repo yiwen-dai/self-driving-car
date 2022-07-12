@@ -1,20 +1,25 @@
 import { Controls } from "./controls";
+import { Pair } from "./interfaces";
+import { Sensor } from "./sensor";
 
 export class Car{
+    public sensor: Sensor = new Sensor(this);
+    private controls: Controls = new Controls();
+
+    private speed: number = 0;
+    private acceleration: number = 0.2;
+    private maxSpeed: number = 3;
+    private friction: number = 0.05;
+    public angle: number = 0;
+
     constructor(
         public x: number,
         public y: number,
         private width: number,
         private height: number,
+    ) {
 
-        private controls: Controls = new Controls(),
-
-        private speed: number = 0,
-        private acceleration: number = 0.2,
-        private maxSpeed: number = 3,
-        private friction: number = 0.05,
-        private angle: number = 0,
-    ) {}
+    }
 
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -32,10 +37,13 @@ export class Car{
         ctx.fill();
 
         ctx.restore();
+
+        this.sensor.draw(ctx);
     }
 
-    update() {
+    update(roadBorders: Pair[][]) {
         this.move();
+        this.sensor.update(roadBorders);
     }
 
     private move() {
