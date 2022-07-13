@@ -1,35 +1,42 @@
 import { Controls } from "./controls";
-import { Pair } from "./interfaces";
+import { ControlTypes, Pair } from "./interfaces";
 import { Sensor } from "./sensor";
-import { UtilsService } from "./utils.service";
+import { Utils } from "./utils.service";
 
 export class Car{
-    public sensor: Sensor = new Sensor(this);
-    private controls: Controls = new Controls();
-    public utils: UtilsService;
+    public sensor: Sensor;
+    private controls: Controls;
+    public utils: Utils = new Utils();
 
     private speed: number = 0;
     private acceleration: number = 0.2;
-    private maxSpeed: number = 3;
     private friction: number = 0.05;
     public angle: number = 0;
 
     private damaged: boolean = false;
+    private carColor: string = "black";
     
-    private carCoors: Pair[];
+    public carCoors: Pair[];
 
     constructor(
         public x: number,
         public y: number,
         private width: number,
         private height: number,
+        private controlType: ControlTypes,
+        private maxSpeed: number = 3
     ) {
-
+        this.controls = new Controls(this.controlType);
+        if (this.controlType === ControlTypes.Real) {
+            this.sensor = new Sensor(this);
+        } else {
+            this.carColor = "#" + Math.floor(Math.random()*16777215).toString(16);
+        }
     }
 
 
     draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.damaged ? 'red' : 'black';
+        ctx.fillStyle = this.damaged ? 'red' : this.carColor;
 
         ctx.beginPath();
         ctx.moveTo(this.carCoors[0].x, this.carCoors[0].y);
@@ -37,7 +44,10 @@ export class Car{
             ctx.lineTo(this.carCoors[i].x, this.carCoors[i].y);
         }
         ctx.fill();
-        this.sensor.draw(ctx);
+
+        if (this.sensor) {
+            this.sensor.draw(ctx);
+        }
     }
 
     private move() {
@@ -109,9 +119,16 @@ export class Car{
         return coors;
     }
 
-    private checkDamage(roadBorders: Pair[][]) {
+    private checkDamage(roadBorders: Pair[][], traffic: Car[]) {
         for(let i: number = 0; i < roadBorders.length ; i++){
             if (this.utils.polysIntersect(this.carCoors, roadBorders[i])){
+                this.damaged = true;
+                return;
+            }
+        }
+
+        for(let i: number = 0; i < traffic.length ; i++){
+            if (this.utils.polysIntersect(this.carCoors, traffic[i].carCoors)) {
                 this.damaged = true;
                 return;
             }
@@ -120,12 +137,14 @@ export class Car{
         return;
     }
 
-    update(roadBorders: Pair[][]) {
+    update(roadBorders: Pair[][], traffic: Car[]) {
         if (!this.damaged) {
             this.move();
             this.carCoors = this.getCoordinates();
-            this.checkDamage(roadBorders);
+            this.checkDamage(roadBorders, traffic);
         }
-        this.sensor.update(roadBorders);
+        if (this.sensor) {
+            this.sensor.update(roadBorders, traffic);
+        }
     }
 }

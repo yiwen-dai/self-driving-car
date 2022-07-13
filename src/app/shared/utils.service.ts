@@ -1,10 +1,7 @@
-import { Injectable } from '@angular/core';
+
 import { Intersection, Pair } from './interfaces';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class UtilsService {
+export class Utils {
   constructor() { }
 
   // linear interpolation
@@ -35,7 +32,7 @@ export class UtilsService {
     }
 
     // collision detection
-    polysIntersect(poly1, poly2){
+    polysIntersect(poly1, poly2): boolean{
       for(let i=0;i<poly1.length;i++){
           for(let j=0;j<poly2.length;j++){
               const touch=this.getIntersection(

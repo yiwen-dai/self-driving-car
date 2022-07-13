@@ -1,6 +1,6 @@
 import { Car } from "./car";
 import { Intersection, Pair } from "./interfaces";
-import { UtilsService } from "./utils.service";
+import { Utils } from "./utils.service";
 
 export class Sensor{
     private numRays: number = 5;
@@ -10,7 +10,7 @@ export class Sensor{
     private rays: Pair[][] = [];
     public readings = []
 
-    public utils: UtilsService 
+    public utils: Utils = new Utils();
 
     constructor(private car: Car) {}
 
@@ -35,7 +35,7 @@ export class Sensor{
         }
     }
 
-    private getReading(ray: Pair[], roadBorders: Pair[][]) {
+    private getReading(ray: Pair[], roadBorders: Pair[][], traffic: Car[]) {
         // find all points of intersection and get the closest point
         let touches = [];
         roadBorders.forEach(border => {
@@ -46,6 +46,18 @@ export class Sensor{
                 touches.push(touch);
             }
         })
+
+        for (let i = 0; i < traffic.length; ++i) {
+            const trafficCarCoors = traffic[i].carCoors;
+            for (let j = 0; j < trafficCarCoors.length; ++j) {
+                const touch: Intersection = this.utils.getIntersection(
+                    ray[0], ray[1], trafficCarCoors[j], trafficCarCoors[(j + 1) % trafficCarCoors.length]
+                );
+                if (touch) {
+                    touches.push(touch);
+                }
+            }
+        }
 
         if (!touches.length) {
             // no POI's 
@@ -58,12 +70,12 @@ export class Sensor{
         }
     }
 
-    update(roadBorders: Pair[][]) {
+    update(roadBorders: Pair[][], traffic: Car[]) {
         this.castRays();
         this.readings = [];
         this.rays.forEach(ray => {
             this.readings.push(
-                this.getReading(ray, roadBorders)
+                this.getReading(ray, roadBorders, traffic)
             );
         })
     }

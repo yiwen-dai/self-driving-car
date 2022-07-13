@@ -1,11 +1,22 @@
+import { ControlTypes } from "./interfaces";
+
 export class Controls {
+    public forward: boolean = false;
+    public reverse: boolean = false;
+    public left: boolean = false;
+    public right: boolean = false;
     
     constructor(
-        public forward: boolean = false,
-        public reverse: boolean = false,
-        public left: boolean = false,
-        public right: boolean = false,) {
-        this.addKeyboardListeners();
+        private controlType: ControlTypes
+    ) {
+        switch(controlType) {
+            case ControlTypes.Real:
+                this.addKeyboardListeners();
+                break;
+            case ControlTypes.Dummy:
+                this.forward = true;
+                break;
+        }
     }
 
     private addKeyboardListeners() {

@@ -1,5 +1,5 @@
 import { Pair } from "./interfaces";
-import { UtilsService } from "./utils.service";
+import { Utils } from "./utils.service";
 
 export class Road {
     readonly inf: number = 1000000;
@@ -12,7 +12,7 @@ export class Road {
     numLanes: number = 3;
     borders: Pair[][] = [];
 
-    public utils: UtilsService
+    public utils: Utils = new Utils();
     
     constructor(
         x: number,

@@ -8,3 +8,8 @@ export interface Intersection {
     y: number,
     distance: number
 }
+
+export enum ControlTypes {
+    Dummy,
+    Real
+}
