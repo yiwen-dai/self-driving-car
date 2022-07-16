@@ -10,29 +10,29 @@ export class Utils {
     return left + (right - left) * percentage;
   }
 
-    // get all points of intersections
-    getIntersection(A: Pair, B: Pair, C: Pair, D: Pair) : Intersection{
-      const tTop=(D.x-C.x)*(A.y-C.y)-(D.y-C.y)*(A.x-C.x);
-    const uTop=(C.y-A.y)*(A.x-B.x)-(C.x-A.x)*(A.y-B.y);
-    const bottom=(D.y-C.y)*(B.x-A.x)-(D.x-C.x)*(B.y-A.y);
-    
-    if(bottom!=0){
-        const t=tTop/bottom;
-        const u=uTop/bottom;
-        if(t>=0 && t<=1 && u>=0 && u<=1){
-            return {
-                x:this.lerp(A.x,B.x,t),
-                y:this.lerp(A.y,B.y,t),
-                distance:t
-            }
-        }
-    }
+  // get all points of intersections
+  getIntersection(A: Pair, B: Pair, C: Pair, D: Pair) : Intersection{
+    const tTop=(D.x-C.x)*(A.y-C.y)-(D.y-C.y)*(A.x-C.x);
+  const uTop=(C.y-A.y)*(A.x-B.x)-(C.x-A.x)*(A.y-B.y);
+  const bottom=(D.y-C.y)*(B.x-A.x)-(D.x-C.x)*(B.y-A.y);
+  
+  if(bottom!=0){
+      const t=tTop/bottom;
+      const u=uTop/bottom;
+      if(t>=0 && t<=1 && u>=0 && u<=1){
+          return {
+              x:this.lerp(A.x,B.x,t),
+              y:this.lerp(A.y,B.y,t),
+              distance:t
+          }
+      }
+  }
 
-    return null;
-    }
+  return null;
+  }
 
-    // collision detection
-    polysIntersect(poly1, poly2): boolean{
+  // collision detection
+  polysIntersect(poly1, poly2): boolean{
       for(let i=0;i<poly1.length;i++){
           for(let j=0;j<poly2.length;j++){
               const touch=this.getIntersection(
@@ -47,5 +47,14 @@ export class Utils {
           }
       }
       return false;
+  }
+
+  // return rgba value
+  getRGBA(value) {
+    const alpha=Math.abs(value);
+    const R=value<0?0:255;
+    const G=R;
+    const B=value>0?0:255;
+    return "rgba("+R+","+G+","+B+","+alpha+")";
   }
 }

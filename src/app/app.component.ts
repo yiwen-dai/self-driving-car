@@ -12,7 +12,8 @@ import { Utils } from './shared/utils.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  car: Car;
+  cars: Car [];
+  bestCar: Car;
   road: Road;
   traffic: Car[] = [];
 
@@ -30,18 +31,18 @@ export class AppComponent {
     this.carCanvas.width=200;
 
     this.networkCanvas = <HTMLCanvasElement> document.getElementById("network-canvas");
-    this.networkCtx = this.carCanvas.getContext("2d");
+    this.networkCtx = this.networkCanvas.getContext("2d");
     this.networkCanvas.width=300;
 
     // set up car and road
     this.road = new Road(this.carCanvas.width / 2, this.carCanvas.width * 0.9);
-    this.car = new Car(
-      this.road.getLaneCenter(Math.floor(this.road.numLanes / 2)), 
-      100,
-      30,
-      50, 
-      ControlTypes.AI
-    );
+    this.cars = this.generateCars(100);
+    this.bestCar = this.cars[0];
+    if (localStorage.getItem("bestNeuralNetwork")) {
+      this.bestCar.neuralNetwork = JSON.parse(
+        localStorage.getItem("bestNeuralNetwork")
+      )
+    }
 
     // set up traffic
     this.generateTraffic(Math.floor(Math.random() * 30));
@@ -50,27 +51,57 @@ export class AppComponent {
   }
 
   animate() {
+    // update cars
     this.traffic.forEach(car => {
       car.update(this.road.borders, []);
     })
-    this.car.update(this.road.borders, this.traffic);
+    this.cars.forEach(car => 
+      car.update(this.road.borders, this.traffic)
+    );
+
+    // determine best car to show (furthest = lowest y value) 
+    this.bestCar = this.cars.find(car => 
+      car.y == Math.min(...this.cars.map(c=>c.y))
+    )
+
+    // update canvas
     this.carCanvas.height = window.innerHeight;
     this.networkCanvas.height = window.innerHeight;
-
     this.carCtx.save();
-    this.carCtx.translate(0, -this.car.y + this.carCanvas.height * 0.75);
+    this.carCtx.translate(0, -this.bestCar.y + this.carCanvas.height * 0.75);
 
+    // draw road, cars, and traffic
     this.road.draw(this.carCtx);
     this.traffic.forEach(car => {
       car.draw(this.carCtx);
     })
-    this.car.draw(this.carCtx);
-
+    this.carCtx.globalAlpha = 0.2;
+    this.cars.forEach(car => 
+      car.draw(this.carCtx)
+    );
+    this.carCtx.globalAlpha = 1;
+    this.bestCar.draw(this.carCtx, true)
+    
     this.carCtx.restore();
 
-    Visualizer.drawNetwork(this.networkCtx, this.car.neuralNetwork, new Utils());
+    // draw visualizer
+    Visualizer.drawNetwork(this.networkCtx, this.bestCar.neuralNetwork, new Utils());
 
     requestAnimationFrame(animate);
+  }
+
+  private generateCars(numCars: number) {
+    const cars: Car[] = [];
+    for (let i = 1; i <= numCars; ++i) {
+      cars.push(new Car(
+        this.road.getLaneCenter(Math.floor(this.road.numLanes / 2)), 
+        100,
+        30,
+        50,
+        ControlTypes.AI
+      ));
+    }
+    return cars;
   }
 
   private generateTraffic(numCars: number) {
@@ -85,5 +116,15 @@ export class AppComponent {
       );
       this.traffic.push(trafficCar);
     }
+  }
+
+  save() {
+    localStorage.setItem("bestNeuralNetwork", JSON.stringify(this.bestCar?.neuralNetwork));
+    console.log('saved');
+  }
+
+  discard() {
+    localStorage.removeItem("bestNeuralNetwork");
+    console.log('discarded');
   }
 }

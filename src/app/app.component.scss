@@ -1,7 +1,32 @@
-#car-canvas{
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+#car-canvas {
     background:#6a6166;
 }
 
-#network-canvas{
+#network-canvas {
     background: black;
+}
+
+#vertical-buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+button {
+    border: none;
+    border-radius: 5px;
+    padding: 5px 5px 7px 5px;
+    margin: 2px;
+    width: 30px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: blue;
 }
