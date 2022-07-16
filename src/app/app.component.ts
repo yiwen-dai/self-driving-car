@@ -2,6 +2,7 @@ import { animate } from '@angular/animations';
 import { Component } from '@angular/core';
 import { Car } from './shared/car';
 import { ControlTypes } from './shared/interfaces';
+import { NeuralNetwork } from './shared/neural network/neural-network';
 import { Visualizer } from './shared/neural network/visualizer';
 import { Road } from './shared/road';
 import { Utils } from './shared/utils.service';
@@ -32,20 +33,36 @@ export class AppComponent {
 
     this.networkCanvas = <HTMLCanvasElement> document.getElementById("network-canvas");
     this.networkCtx = this.networkCanvas.getContext("2d");
-    this.networkCanvas.width=300;
+    this.networkCanvas.width=500;
 
     // set up car and road
     this.road = new Road(this.carCanvas.width / 2, this.carCanvas.width * 0.9);
-    this.cars = this.generateCars(100);
+    this.cars = this.generateCars(300);
     this.bestCar = this.cars[0];
     if (localStorage.getItem("bestNeuralNetwork")) {
-      this.bestCar.neuralNetwork = JSON.parse(
-        localStorage.getItem("bestNeuralNetwork")
-      )
+      for (let i = 0; i < this.cars.length; ++i) {
+        this.cars[i].neuralNetwork = JSON.parse(
+          localStorage.getItem("bestNeuralNetwork")
+        )
+        if (i) {
+          NeuralNetwork.mutate(this.cars[i].neuralNetwork, 0.1);
+        }
+      }
     }
 
     // set up traffic
+    // uncomment for randomly generated traffic
     this.generateTraffic(Math.floor(Math.random() * 30));
+    // training data
+    // this.traffic = [
+    //   new Car(this.road.getLaneCenter(1), -100, 30, 50, ControlTypes.Dummy, 2),
+    //   new Car(this.road.getLaneCenter(0), -300, 30, 50, ControlTypes.Dummy, 2),
+    //   new Car(this.road.getLaneCenter(2), -300, 30, 50, ControlTypes.Dummy, 2),
+    //   new Car(this.road.getLaneCenter(0), -500, 30, 50, ControlTypes.Dummy, 2),
+    //   new Car(this.road.getLaneCenter(1), -500, 30, 50, ControlTypes.Dummy, 2),
+    //   new Car(this.road.getLaneCenter(1), -700, 30, 50, ControlTypes.Dummy, 2),
+    //   new Car(this.road.getLaneCenter(2), -700, 30, 50, ControlTypes.Dummy, 2),
+    // ]
 
     setInterval(()=> { this.animate() }, 15);
   }

@@ -44,6 +44,7 @@ export class Car{
 
 
     draw(ctx: CanvasRenderingContext2D, drawSensors: boolean = false) {
+        ctx.fillStyle = drawSensors ? 'blue' : this.carColor;
         ctx.fillStyle = this.damaged ? 'red' : this.carColor;
 
         ctx.beginPath();
