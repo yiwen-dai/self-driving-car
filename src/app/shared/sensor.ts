@@ -3,12 +3,12 @@ import { Intersection, Pair } from "./interfaces";
 import { Utils } from "./utils.service";
 
 export class Sensor{
-    private numRays: number = 5;
+    public numRays: number = 5;
     private rayRange: number = 150;
     private raySpread: number = Math.PI / 2;
 
     private rays: Pair[][] = [];
-    public readings = []
+    public readings: Intersection[] = []
 
     public utils: Utils = new Utils();
 

@@ -1,5 +1,6 @@
 import { Controls } from "./controls";
 import { ControlTypes, Pair } from "./interfaces";
+import { NeuralNetwork } from "./neural network/neural-network";
 import { Sensor } from "./sensor";
 import { Utils } from "./utils.service";
 
@@ -17,6 +18,9 @@ export class Car{
     private carColor: string = "black";
     
     public carCoors: Pair[];
+    
+    public neuralNetwork: NeuralNetwork;
+    private useNeuralNetwork: boolean = false;
 
     constructor(
         public x: number,
@@ -27,8 +31,12 @@ export class Car{
         private maxSpeed: number = 3
     ) {
         this.controls = new Controls(this.controlType);
-        if (this.controlType === ControlTypes.Real) {
+        this.useNeuralNetwork = controlType === ControlTypes.AI;
+        if (this.controlType !== ControlTypes.Dummy) {
             this.sensor = new Sensor(this);
+            this.neuralNetwork = new NeuralNetwork(
+                [this.sensor.numRays, 6, 4]
+            );
         } else {
             this.carColor = "#" + Math.floor(Math.random()*16777215).toString(16);
         }
@@ -145,6 +153,19 @@ export class Car{
         }
         if (this.sensor) {
             this.sensor.update(roadBorders, traffic);
+            const offsets = this.sensor.readings.map(s => 
+                // receives high values if distance to other things is close 
+                // and low values if distance to other things is far
+                s == null ? 0 : 1 - s.distance
+            );
+            const outputs = NeuralNetwork.feedForward(offsets, this.neuralNetwork);
+
+            if (this.useNeuralNetwork) {
+                this.controls.forward = outputs[0] === 1;
+                this.controls.left = outputs[1] === 1;
+                this.controls.right = outputs[2] === 1;
+                this.controls.reverse = outputs[3] === 1;
+            }
         }
     }
 }

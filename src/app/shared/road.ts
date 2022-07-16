@@ -70,6 +70,6 @@ export class Road {
 
     getLaneCenter(laneIndex: number) {
         const laneWidth = this.width / this.numLanes;
-        return this.left + laneWidth / 2 + Math.min(laneIndex, this.numLanes - 1) * laneIndex * laneWidth;
+        return this.left + laneWidth / 2 + Math.min(laneIndex, this.numLanes - 1) * laneWidth;
     }
 }

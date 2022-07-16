@@ -11,5 +11,6 @@ export interface Intersection {
 
 export enum ControlTypes {
     Dummy,
-    Real
+    Real,
+    AI
 }
